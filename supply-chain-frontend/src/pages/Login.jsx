@@ -1,16 +1,39 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./Login.css";
 
-export default function Login() {
+function Login() {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // For now just simulate login/register and redirect
-    navigate("/dashboard");
+    try {
+      if (isLogin) {
+        const res = await axios.post("http://localhost:9090/api/login", {
+          email: formData.email,
+          password: formData.password,
+        });
+        if (res.data) {
+          alert("Login successful!");
+          navigate("/dashboard");
+        } else {
+          alert("Invalid credentials");
+        }
+      } else {
+        const res = await axios.post("http://localhost:9090/api/register", formData);
+        if (res.data) {
+          alert("Registered successfully!");
+          setIsLogin(true);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong!");
+    }
   };
 
   return (
@@ -47,3 +70,5 @@ export default function Login() {
     </div>
   );
 }
+
+export default Login;
